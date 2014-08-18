@@ -15,6 +15,7 @@ import android.widget.TextView;
 import com.squareup.picasso.Picasso;
 import com.twitter_app.tsuru.twitter.R;
 import com.twitter_app.tsuru.twitter.TwitterGetId;
+import com.twitter_app.tsuru.twitter.TwitterProfileGet;
 import com.twitter_app.tsuru.twitter.TwitterUtils;
 import com.twitter_app.tsuru.twitter.async.TwitterCreateFavoriteAsync;
 import com.twitter_app.tsuru.twitter.async.TwitterCreateRetweetAsync;
@@ -25,6 +26,7 @@ import com.twitter_app.tsuru.twitter.ui.OtherTwitterProfileActivity;
 
 import twitter4j.Status;
 import twitter4j.Twitter;
+import twitter4j.TwitterException;
 
 
 /**
@@ -41,13 +43,16 @@ public class TweetTimelineAdapter extends ArrayAdapter<Status> {
     public String retweetNumberGet;
     public long id;
     public TwitterGetId retweetGetId;
+    TwitterProfileGet myProfile;
 
 
-    public TweetTimelineAdapter(Context context) {
+    public TweetTimelineAdapter(Context context, TwitterProfileGet myProfile) {
         super(context, android.R.layout.simple_list_item_1);
         inflater = (LayoutInflater) context.getSystemService(Activity.LAYOUT_INFLATER_SERVICE);
         this.context = context;
         retweetGetId = new TwitterGetId();
+        twitter = TwitterUtils.getTwitterInstance(getContext());
+        this.myProfile = myProfile;
     }
 
     @Override
@@ -56,7 +61,6 @@ public class TweetTimelineAdapter extends ArrayAdapter<Status> {
         if (convertView == null) {
             convertView = inflater.inflate(R.layout.list_item_tweet, null);
         }
-        twitter = TwitterUtils.getTwitterInstance(getContext());
         final Status item = getItem(position);
         final TextView name = (TextView) convertView.findViewById(R.id.name);
         final TextView screenName = (TextView) convertView.findViewById(R.id.screen_name);
@@ -73,7 +77,6 @@ public class TweetTimelineAdapter extends ArrayAdapter<Status> {
         screenName.setText("@" + item.getUser().getScreenName());
         text.setText(item.getText());
         Picasso.with(this.getContext()).load(item.getUser().getProfileImageURL()).into(icon);
-
 
         favoriteNumber.setText(String.valueOf(item.getFavoriteCount()));
 

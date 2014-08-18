@@ -10,7 +10,9 @@ import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.squareup.picasso.Picasso;
 import com.twitter_app.tsuru.twitter.R;
+import com.twitter_app.tsuru.twitter.TwitterProfileGet;
 import com.twitter_app.tsuru.twitter.async.TwitterProfileAsync;
 
 import butterknife.ButterKnife;
@@ -28,12 +30,22 @@ public class MyTwitterProfileActivity extends ActionBarActivity implements View.
     public @InjectView(R.id.profile_explain)TextView profileExplain;
     public @InjectView(R.id.profile_img)ImageView profile;
 
+    public TwitterProfileGet myProfile;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_profile);
         ButterKnife.inject(this);
-        new TwitterProfileAsync(this, userNameId, userName, profileExplain, profile, follow, follower).execute();
+        Intent getMyProfile = getIntent();
+        myProfile = (TwitterProfileGet) getMyProfile.getSerializableExtra("myProfile");
+        userName.setText(myProfile.name);
+        userNameId.setText(myProfile.screenName);
+        profileExplain.setText(myProfile.profileExplain);
+        follower.setText(getString(R.string.follower)+":"+myProfile.followerNum);
+        follow.setText(getString(R.string.follow)+":"+ myProfile.followNum);
+        Picasso.with(this).load(myProfile.imageUrl).into(profile);
+
         favorite.setOnClickListener(this);
     }
 

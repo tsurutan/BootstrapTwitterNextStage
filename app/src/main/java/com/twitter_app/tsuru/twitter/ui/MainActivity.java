@@ -12,8 +12,10 @@ import android.view.MenuItem;
 import android.widget.Toast;
 
 import com.twitter_app.tsuru.twitter.R;
+import com.twitter_app.tsuru.twitter.TwitterProfileGet;
 import com.twitter_app.tsuru.twitter.adapter.TweetTimelineAdapter;
 import com.twitter_app.tsuru.twitter.TwitterUtils;
+import com.twitter_app.tsuru.twitter.async.TwitterProfileAsync;
 import com.twitter_app.tsuru.twitter.authenticator.TwitterOAuthActivity;
 
 import java.util.List;
@@ -29,6 +31,7 @@ public class MainActivity extends ListActivity {
     private Twitter twitter;
     public ProgressDialog progressDialog;
     public static final int pageCountNumber = 200;
+    public TwitterProfileGet myProfile;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -39,7 +42,8 @@ public class MainActivity extends ListActivity {
             startActivity(intent);
             finish();
         } else {
-            adapter = new TweetTimelineAdapter(this);
+            myProfile = new TwitterProfileGet();
+            adapter = new TweetTimelineAdapter(this, myProfile);
             setListAdapter(adapter);
             progressDialog = new ProgressDialog(this);
             progressDialog.setProgressStyle(progressDialog.STYLE_SPINNER);
@@ -48,6 +52,8 @@ public class MainActivity extends ListActivity {
             progressDialog.show();
             twitter = TwitterUtils.getTwitterInstance(this);
             reloadTimeLine();
+
+            new TwitterProfileAsync(this, myProfile).execute();
 
         }
 
@@ -73,6 +79,7 @@ public class MainActivity extends ListActivity {
                 return true;
             case R.id.menu_home:
                 Intent profile = new Intent(this, MyTwitterProfileActivity.class);
+                profile.putExtra("myProfile",myProfile);
                 startActivity(profile);
                 return true;
         }
@@ -89,7 +96,6 @@ public class MainActivity extends ListActivity {
                     Paging paging = new Paging();
                     //タイムラインの取得数を指定
                     paging.setCount(pageCountNumber);
-
 
                     return twitter.getHomeTimeline(paging);
                 } catch (TwitterException e) {
