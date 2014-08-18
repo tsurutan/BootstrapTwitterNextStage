@@ -9,6 +9,7 @@ import android.widget.TextView;
 
 import com.squareup.picasso.Picasso;
 import com.twitter_app.tsuru.twitter.R;
+import com.twitter_app.tsuru.twitter.TwitterProfileGet;
 import com.twitter_app.tsuru.twitter.TwitterUtils;
 
 import twitter4j.Twitter;
@@ -20,42 +21,14 @@ import twitter4j.TwitterException;
 public class TwitterProfileAsync extends AsyncTask<Void, Void, Void> {
     public Twitter twitter;
     public Context context;
-    public String userNameIdStr;
-    public String userNameStr;
-    public String profileExplainStr;
-    public String url;
-    public String followerNumber;
-    public String followNumber;
-    public TextView userNameId;
-    public TextView userName;
-    public TextView profileExplain;
-    public ImageView profileImg;
-    public Button follow;
-    public Button follower;
+    public TwitterProfileGet myProfile;
     public ProgressDialog progressDialog;
 
 
-    public TwitterProfileAsync(Context context,
-                               TextView userNameId,
-                               TextView userName,
-                               TextView profileExplain,
-                               ImageView profileImg,
-                               Button follow,
-                               Button follower
-                               ){
+    public TwitterProfileAsync(Context context, TwitterProfileGet myProfile){
         super();
         this.context = context;
-        this.userNameId =userNameId;
-        this.userName =userName;
-        this.profileExplain=profileExplain;
-        this.profileImg = profileImg;
-        this.follow=follow;
-        this.follower=follower;
-        progressDialog = new ProgressDialog(context);
-        progressDialog.setProgressStyle(progressDialog.STYLE_SPINNER);
-        progressDialog.setMessage(context.getString(R.string.loading));
-        progressDialog.setCancelable(true);
-        progressDialog.show();
+        this.myProfile = myProfile;
     }
 
 
@@ -71,12 +44,12 @@ public class TwitterProfileAsync extends AsyncTask<Void, Void, Void> {
 
         try {
             twitter=TwitterUtils.getTwitterInstance(context);
-            userNameIdStr = twitter.getScreenName();
-            userNameStr = twitter.verifyCredentials().getName();
-            profileExplainStr = twitter.verifyCredentials().getDescription();
-            url=twitter.users().verifyCredentials().getProfileImageURL();
-            followNumber = String.valueOf(twitter.users().verifyCredentials().getFriendsCount());
-            followerNumber = String.valueOf(twitter.verifyCredentials().getFollowersCount());
+            myProfile.screenName = twitter.getScreenName();
+            myProfile.name = twitter.verifyCredentials().getName();
+            myProfile.profileExplain = twitter.verifyCredentials().getDescription();
+            myProfile.imageUrl=twitter.users().verifyCredentials().getProfileImageURL();
+            myProfile.followNum = String.valueOf(twitter.users().verifyCredentials().getFriendsCount());
+            myProfile.followerNum = String.valueOf(twitter.verifyCredentials().getFollowersCount());
         } catch (TwitterException e) {
             e.printStackTrace();
         }
@@ -85,14 +58,6 @@ public class TwitterProfileAsync extends AsyncTask<Void, Void, Void> {
     // メインスレッドで実行する処理
     @Override
     protected void onPostExecute(Void result) {
-        userNameId.setText("@" + userNameIdStr);
-        userName.setText(userNameStr);
-        profileExplain.setText(profileExplainStr);
-        follow.setText(context.getString(R.string.follow)+"："+followNumber);
-        follower.setText(context.getString(R.string.follower)+"："+followerNumber);
-        Picasso.with(context).load(url).into(profileImg);
-        progressDialog.dismiss();
-
     }
 }
 
