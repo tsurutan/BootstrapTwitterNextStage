@@ -1,4 +1,4 @@
 BootstrapTwitterNextStage
 =========================
 
-Twitterクライアントを開発するためのレポジトリです。
+This is test repository for Bootstrap twitter。
